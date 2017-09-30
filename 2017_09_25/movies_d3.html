@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Atividade </title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<div id="grossChart">
+    <h1>Filmes por Bilheteria</h1>
+</div>
+<div id="budgetChart">
+    <h1>Filmes por Orçamento</h1>
+</div>
+<div id="profitChart">
+    <h1>Filmes por Lucro</h1>
+</div>
+<div id="genreChart">
+    <h1>Gêneros por Bilheteria</h1>
+</div>
+<script type="text/javascript">
+    function render(data, chart, color, nameFunction, measureFunction, comparator){
+      let chartId = "#"+chart;
+      d3.select(chartId)
+        .selectAll("div.h-bar")
+        .data(data)
+        .enter()
+        .append("div")
+        .attr("class", color+" h-bar")
+        .append("span");
+      d3.select(chartId)
+        .selectAll("div.h-bar")
+        .style("width", measureFunction)
+        .select("span")
+        .text(nameFunction);
+      if (comparator) {
+        d3.select(chartId)
+        .selectAll("div.h-bar")
+        .sort(comparator);
+      }    
+    }
+    let movieName = function(data) {
+      return data.Film;
+    }
+    let genreName = function(data) {
+      return data.genre;
+    }
+    let getGross= function(data) {
+      return data.Worldwide_Gross_M;
+    }
+    let getBudget= function(data) {
+      return data.Budget_M;
+    }
+    let getProfit= function(data) {
+      return data.Worldwide_Gross_M - data.Budget_M;
+    }
+    let getGrossByGenre= function(data) {
+      return data.gross;
+    }
+    let grossCompare = function(a, b) {
+      return getGross(a) > getGross(b)? -1 : 1;
+    }
+    let budgetCompare = function(a, b) {
+      return a.Budget_M > b.Budget_M? -1 : 1;
+    }
+    let profitCompare = function(a, b) {
+      return getProfit(a) > getProfit(b)? -1 : 1;
+    }
+    let genreCompare = function(a, b) {
+      return getGrossByGenre(a) > getGrossByGenre(b)? -1 : 1;
+    }
+
+    let grossMeasure = function(data) {
+      return (0.4 * getGross(data)) + "px";
+    }
+    let budgetMeasure = function(data) {
+      return (2 * data.Budget_M) + "px";
+    }
+    let profitMeasure = function(data) {
+      return (0.4 * getProfit(data)) + "px";
+    }
+    let genreMeasure = function(data) {
+      return (0.1 * getGrossByGenre(data)) + "px";
+    }
+
+    function getGenres(data){
+            let dataByGenre = [];
+            for (let i = data.length - 1; i >= 0; i--) {
+              let movie = data[i];
+              let indexMovieWithSameGenre = search(movie.Genre, dataByGenre);
+              if(indexMovieWithSameGenre != -1){
+                dataByGenre[indexMovieWithSameGenre].gross += getGross(movie);
+              } else{
+                dataByGenre.push({"genre":movie.Genre,"gross":movie.Worldwide_Gross_M});
+              }
+            }
+            function search(key, array){
+              for (var i = array.length - 1; i >= 0; i--) {
+                if (array[i].genre === key){
+                  return i;
+                }
+              }
+              return -1;
+            }
+            return dataByGenre;
+    }
+    
+    d3.json("movies.json", function(error, json){
+      let genres = getGenres(json);
+      render(json, "grossChart", "jungle-green", movieName, grossMeasure, grossCompare);
+      render(json, "budgetChart", "lochmara", movieName, budgetMeasure, budgetCompare);
+      render(json, "profitChart", "yellow-sea", movieName, profitMeasure, profitCompare);
+      render(genres, "genreChart", "flamenco", genreName, genreMeasure, genreCompare);
+    });
+</script>
+
+</body>
+</html>

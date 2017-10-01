@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Atividade </title>
+    <title>Tarefa 2</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
@@ -20,7 +20,7 @@
     <h1>Gêneros por Bilheteria</h1>
 </div>
 <script type="text/javascript">
-    function render(data, chart, color, nameFunction, measureFunction, comparator){
+    function render(data, chart, color, nameFunction, valueFunction, measureFunction, comparator){
       let chartId = "#"+chart;
       d3.select(chartId)
         .selectAll("div.h-bar")
@@ -29,25 +29,30 @@
         .append("div")
         .attr("class", color+" h-bar")
         .append("span");
-      d3.select(chartId)
-        .selectAll("div.h-bar")
-        .style("width", measureFunction)
-        .select("span")
-        .text(nameFunction);
       if (comparator) {
         d3.select(chartId)
         .selectAll("div.h-bar")
         .sort(comparator);
-      }    
+      }   
+      d3.select(chartId)
+        .selectAll("div.h-bar")
+        .style("width", measureFunction)
+        .select("span")
+        .text(function(data){
+          return nameFunction(data) + " - $"+ String( valueFunction(data) ) + "M";
+        }); 
     }
-    let movieName = function(data) {
+    let getMovieName = function(data) {
       return data.Film;
     }
-    let genreName = function(data) {
+    let getGenreName = function(data) {
       return data.genre;
     }
     let getGross= function(data) {
       return data.Worldwide_Gross_M;
+    }
+    let getGrossByGenre= function(data) {
+      return data.gross;
     }
     let getBudget= function(data) {
       return data.Budget_M;
@@ -55,9 +60,7 @@
     let getProfit= function(data) {
       return data.Worldwide_Gross_M - data.Budget_M;
     }
-    let getGrossByGenre= function(data) {
-      return data.gross;
-    }
+
     let grossCompare = function(a, b) {
       return getGross(a) > getGross(b)? -1 : 1;
     }
@@ -86,7 +89,7 @@
 
     function getGenres(data){
             let dataByGenre = [];
-            for (let i = data.length - 1; i >= 0; i--) {
+            for (let i in data) {
               let movie = data[i];
               let indexMovieWithSameGenre = search(movie.Genre, dataByGenre);
               if(indexMovieWithSameGenre != -1){
@@ -96,7 +99,7 @@
               }
             }
             function search(key, array){
-              for (var i = array.length - 1; i >= 0; i--) {
+              for (let i in array) {
                 if (array[i].genre === key){
                   return i;
                 }
@@ -108,10 +111,10 @@
     
     d3.json("movies.json", function(error, json){
       let genres = getGenres(json);
-      render(json, "grossChart", "jungle-green", movieName, grossMeasure, grossCompare);
-      render(json, "budgetChart", "lochmara", movieName, budgetMeasure, budgetCompare);
-      render(json, "profitChart", "yellow-sea", movieName, profitMeasure, profitCompare);
-      render(genres, "genreChart", "flamenco", genreName, genreMeasure, genreCompare);
+      render(json, "grossChart", "jungle-green", getMovieName, getGross, grossMeasure, grossCompare);
+      render(json, "budgetChart", "lochmara", getMovieName, getBudget, budgetMeasure, budgetCompare);
+      render(json, "profitChart", "yellow-sea", getMovieName, getProfit, profitMeasure, profitCompare);
+      render(genres,"genreChart", "flamenco", getGenreName, getGrossByGenre, genreMeasure, genreCompare);
     });
 </script>
 

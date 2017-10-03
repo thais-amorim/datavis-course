@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Carregando dados de um arquivo csv</title>
+    <link rel="stylesheet" href="css/dc.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/crossfilter.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="js/dc.js" charset="utf-8"></script>
+
+</head>
+<body>
+    <div id="grossByYearChart">
+      <h1>Bilheteria por ano</h1>
+    </div>
+    <div id="grossByGenreChart">
+      <h1>Bilheteria por gênero</h1>
+    </div>
+    <script type="text/javascript">
+        var grossByYearChart = dc.barChart('#grossByYearChart');
+        var grossByGenreChart = dc.barChart('#grossByGenreChart');
+
+        d3.json("movies.json", function(data){
+            var facts = crossfilter(data);
+
+            var yearDim = facts.dimension(function(d){
+                return d.Year;
+            });
+
+            var genreDim = facts.dimension(function(d){
+                return d.Genre;
+            });
+
+            var grossByYearGroup = yearDim.group().reduceSum(function(d){
+                return d.Worldwide_Gross_M;
+            });
+
+            var grossByGenreGroup = genreDim.group().reduceSum(function(d){
+                return d.Worldwide_Gross_M;
+            });
+
+            grossByYearChart.width(800)
+                     .height(400)
+                     .margins({top: 30, right: 50, bottom: 25, left: 40})
+                     .dimension(yearDim)
+                     .x(d3.scale.ordinal())
+                     .xUnits(dc.units.ordinal)
+                     .renderHorizontalGridLines(true)
+                     .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
+                     .brushOn(false)    
+                     .group(grossByYearGroup, "Gross per Year")
+                     .yAxis().tickFormat(d3.format('s'));
+
+            grossByGenreChart.width(800)
+                     .height(400)
+                     .margins({top: 30, right: 50, bottom: 25, left: 40})
+                     .dimension(genreDim)
+                     .x(d3.scale.ordinal())
+                     .xUnits(dc.units.ordinal)
+                     .renderHorizontalGridLines(true)
+                     .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
+                     .brushOn(false)  
+                     .group(grossByGenreGroup, "Genre")
+                     .yAxis().tickFormat(d3.format('s'));
+
+            dc.renderAll();
+
+        });
+    </script>           
+</body>
+</html>

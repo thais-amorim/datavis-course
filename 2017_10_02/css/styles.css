@@ -1,5 +1,13 @@
 body {
-    font-family: "helvetica"
+  padding-top: 50px;
+  font-family: "helvetica";
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
 }
 
-
+div {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}

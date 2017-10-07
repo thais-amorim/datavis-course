@@ -18,29 +18,28 @@
       <h1>Bilheteria por gênero</h1>
     </div>
     <script type="text/javascript">
-        let grossByYearChart = dc.barChart('#grossByYearChart');
-        let grossByGenreChart = dc.barChart('#grossByGenreChart');
+        let grossByYearChart    = dc.barChart('#grossByYearChart');
+        let grossByGenreChart   = dc.barChart('#grossByGenreChart');
+
+        var formatNumber    = d3.format(".0f"),
+            formatMillion   = function(x) { return formatNumber(x / 1e6) + "M"; };
+
+        function formatAbbreviation(x) {
+            let v = Math.abs(x);
+            return formatMillion(x);
+        }
 
         d3.json("movies.json", function(data){
-            let facts = crossfilter(data);
-
-            let yearDim = facts.dimension(function(d){
-                return d.Year;
+            data.forEach(function(d){
+                d.Worldwide_Gross_M = +d.Worldwide_Gross_M*1e6;
             });
 
-            let genreDim = facts.dimension(function(d){
-                return d.Genre;
-            });
-
-            let grossByYearGroup = yearDim.group().reduceSum(function(d){
-                return d.Worldwide_Gross_M;
-            });
-
-            let grossByGenreGroup = genreDim.group().reduceSum(function(d){
-                return d.Worldwide_Gross_M;
-            });
-
-            let genreSortDesc = grossByGenreGroup.top(Infinity).map(function(d){return d.key});
+            let facts               = crossfilter(data),
+                yearDim             = facts.dimension(function(d){ return d.Year; }),
+                genreDim            = facts.dimension(function(d){ return d.Genre; }),
+                grossByYearGroup    = yearDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; }),
+                grossByGenreGroup   = genreDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; }),
+                genreSortDesc       = grossByGenreGroup.top(Infinity).map(function(d){return d.key});
 
             grossByYearChart.width(800)
                 .height(400)
@@ -51,13 +50,14 @@
                 .renderHorizontalGridLines(true)
                 .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
                 .ordinalColors(['#299F78']) //jungle green color
-                .brushOn(false)  
+                .brushOn(false)
+                .barPadding(0.4)  
                 .clipPadding(10)
                 .title(function(d) {
-                    return d.key + ": $" + d.value + "M";
+                    return d.key + ": $" + formatAbbreviation(d.value);
                 })  
                 .group(grossByYearGroup, "Gross per Year")
-                .yAxis().tickFormat(d3.format('s'));
+                .yAxis().tickFormat(function(d){ return formatAbbreviation(d); });
 
             grossByGenreChart.width(800)
                 .height(400)
@@ -68,15 +68,14 @@
                 .renderHorizontalGridLines(true)
                 .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
                 .brushOn(false)
+                .barPadding(0.4)
                 .clipPadding(10)
                 .title(function(d) {
-                    return d.key + ": $" + d.value + "M";
+                    return d.key + ": $" + formatAbbreviation(d.value);
                 })  
                 .group(grossByGenreGroup, "Genre")
                 .ordinalColors(['#31659B']) //lochmara color
-                .yAxis().tickFormat(d3.format('s'));
-
-
+                .yAxis().tickFormat(function(d){ return formatAbbreviation(d); });
             dc.renderAll();
         });
     </script>           

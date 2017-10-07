@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="author" content="Thais Marinho">
     <title>Tarefa 3</title>
     <link rel="stylesheet" href="css/dc.css">
     <link rel="stylesheet" href="css/styles.css">
@@ -21,7 +22,7 @@
         let grossByYearChart    = dc.barChart('#grossByYearChart');
         let grossByGenreChart   = dc.barChart('#grossByGenreChart');
 
-        var formatNumber    = d3.format(".0f"),
+        let formatNumber    = d3.format(",.0d"),
             formatMillion   = function(x) { return formatNumber(x / 1e6) + "M"; };
 
         function formatAbbreviation(x) {
@@ -29,53 +30,38 @@
             return formatMillion(x);
         }
 
-        d3.json("movies.json", function(data){
-            data.forEach(function(d){
-                d.Worldwide_Gross_M = +d.Worldwide_Gross_M*1e6;
-            });
-
-            let facts               = crossfilter(data),
-                yearDim             = facts.dimension(function(d){ return d.Year; }),
-                genreDim            = facts.dimension(function(d){ return d.Genre; }),
-                grossByYearGroup    = yearDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; }),
-                grossByGenreGroup   = genreDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; }),
-                genreSortDesc       = grossByGenreGroup.top(Infinity).map(function(d){return d.key});
-
-            grossByYearChart.width(800)
+        function create(data, chart, color, dimensionFunction, groupFunction, groupLabel){
+            chart.width(800)
                 .height(400)
-                .margins({top: 30, right: 50, bottom: 25, left: 40})
-                .dimension(yearDim)
+                .dimension(dimensionFunction)
                 .x(d3.scale.ordinal())
                 .xUnits(dc.units.ordinal)
                 .renderHorizontalGridLines(true)
-                .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
-                .ordinalColors(['#299F78']) //jungle green color
-                .brushOn(false)
-                .barPadding(0.4)  
-                .clipPadding(10)
-                .title(function(d) {
-                    return d.key + ": $" + formatAbbreviation(d.value);
-                })  
-                .group(grossByYearGroup, "Gross per Year")
-                .yAxis().tickFormat(function(d){ return formatAbbreviation(d); });
-
-            grossByGenreChart.width(800)
-                .height(400)
-                .margins({top: 30, right: 50, bottom: 25, left: 40})
-                .dimension(genreDim)
-                .x(d3.scale.ordinal().domain(genreSortDesc))
-                .xUnits(dc.units.ordinal)
-                .renderHorizontalGridLines(true)
-                .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
-                .brushOn(false)
+                .ordinalColors([color])
                 .barPadding(0.4)
-                .clipPadding(10)
+                .group(groupFunction, groupLabel)  
                 .title(function(d) {
                     return d.key + ": $" + formatAbbreviation(d.value);
                 })  
-                .group(grossByGenreGroup, "Genre")
-                .ordinalColors(['#31659B']) //lochmara color
-                .yAxis().tickFormat(function(d){ return formatAbbreviation(d); });
+                .yAxisLabel("", 20)
+                .yAxis().tickFormat(function(d){
+                    return formatAbbreviation(d);
+                });
+        }
+
+        d3.json("movies.json", function(error, json){
+            json.forEach(function(d){
+                d.Worldwide_Gross_M = +(d.Worldwide_Gross_M*1e6);
+            });
+
+            let facts               = crossfilter(json),
+                yearDim             = facts.dimension(function(d){ return d.Year; }),
+                genreDim            = facts.dimension(function(d){ return d.Genre; }),
+                grossByYearGroup    = yearDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; }),
+                grossByGenreGroup   = genreDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; });
+
+            create(json, grossByYearChart, '#299F78', yearDim, grossByYearGroup, "Year");
+            create(json, grossByGenreChart, '#31659B', genreDim, grossByGenreGroup, "Genre");
             dc.renderAll();
         });
     </script>           

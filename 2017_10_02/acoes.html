@@ -2,7 +2,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Carregando dados de um arquivo csv</title>
+    <title>Tarefa 3 - Ações</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
     <link rel="stylesheet" href="css/dc.css">
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/crossfilter.js" charset="utf-8"></script>
@@ -11,57 +13,63 @@
 
 </head>
 <body>
-     <div><h1> Valores das ações da Apple e do Facebook</h1>
-        <div id="chart"></div>
+     <div>
+        <h1>Variação das ações da Apple e do Facebook</h1>
+        <h3>(de 28/09/2016 à 28/09/2017)</h3>
+        <div class="chart" id="chart"></div>
     </div>
     <script type="text/javascript">
-        var compositeChart = dc.compositeChart('#chart');
+        let compositeChart = dc.compositeChart('#chart');
 
         d3.csv("stocks.csv", function(data){
-            // formatando nossos dados
-            var dtgFormat = d3.time.format("%Y/%m/%d");
+            let dtgFormat              = d3.time.format("%Y/%m/%d"), 
+                brazilianDtgFormat     = d3.time.format("%d/%m/%Y"),
+                percentFormat          = d3.format("+.2f");
+
             data.forEach(function(d){
-                d.date = dtgFormat.parse(d.date);
-                d.apple = +d.apple;
-                d.facebook = +d.facebook;
+                d.date      = dtgFormat.parse(d.date);
+                d.apple     = +d.apple;
+                d.facebook  = +d.facebook;
             });
 
-            //criando um crossfilter
-            var facts = crossfilter(data);
+            let facts = crossfilter(data),
+                dateDim = facts.dimension(function(d){ return d.date; }),
+                referenceApple = facts.all()[0].apple,
+                referenceFacebook = facts.all()[0].facebook;
 
-            var dateDim = facts.dimension(function(d){
-                return d.date;
-            });
-
-            var referenceApple = facts.all()[0].apple;
-            var applePercentByDayGroup = dateDim.group().reduceSum(function(d){
+            let applePercentByDayGroup = dateDim.group().reduceSum(function(d){
                 return (d.apple/referenceApple - 1)*100;
             });
 
-            var referenceFacebook = facts.all()[0].facebook;
-            var fbPercentByDayGroup = dateDim.group().reduceSum(function(d){
+            let fbPercentByDayGroup = dateDim.group().reduceSum(function(d){
                 return (d.facebook/referenceFacebook - 1)*100;
             });
 
-            compositeChart.width(800)
-                     .height(400)
-                     .margins({top: 50, right: 50, bottom: 25, left: 40})
-                     .dimension(dateDim)
-                     .x(d3.time.scale().domain([new Date(2016, 8, 28), new Date(2017, 8, 28)]))
-                     .xUnits(d3.time.days)
-                     .renderHorizontalGridLines(true)
-                     .legend(dc.legend().x(700).y(5).gap(5))
-                     .brushOn(false)    
-                     .compose([
-                        dc.lineChart(compositeChart)
-                                  .group(applePercentByDayGroup, 'Apple')
-                                  .ordinalColors(['steelblue']),
-                        dc.lineChart(compositeChart)
-                                  .group(fbPercentByDayGroup, 'Facebook')
-                                  .ordinalColors(['darkorange'])]);
-
+            compositeChart
+                .width(800)
+                .height(400)
+                .margins({top: 50, right: 50, bottom: 25, left: 40})
+                .dimension(dateDim)
+                .x(d3.time.scale().domain([new Date(2016, 8, 28), new Date(2017, 8, 28)]))
+                .xUnits(d3.time.days)
+                .renderHorizontalGridLines(true)
+                .legend(dc.legend().x(700).y(5).itemHeight(13).gap(5))
+                .mouseZoomable(true)
+                .brushOn(false) 
+                .title(function(d){
+                            return "Data: " + brazilianDtgFormat(d.key) + '\n'
+                                    + "Variação: " + percentFormat(d.value) + "%";
+                        })
+                .compose([
+                    dc.lineChart(compositeChart)
+                        .group(applePercentByDayGroup, 'Apple')
+                        .ordinalColors(['steelblue']),
+                    dc.lineChart(compositeChart)
+                        .group(fbPercentByDayGroup, 'Facebook')
+                        .ordinalColors(['darkorange'])])
+                .yAxis().tickFormat(function(label){return label+ "%"});
+                
             dc.renderAll();
-
         });
     </script>           
 </body>

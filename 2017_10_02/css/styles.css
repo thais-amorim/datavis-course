@@ -1,13 +1,32 @@
 body {
-  padding-top: 50px;
-  font-family: "helvetica";
-}
-.starter-template {
-  padding: 40px 15px;
-  text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    color: #3F3F3F;
 }
 
 div {
-    padding-top: 10px;
+	padding-top: 10px;
     padding-bottom: 10px;
+    text-align: center;
+}
+
+div:nth-of-type(1) {
+  float: left;
+}
+
+div:nth-of-type(2) {
+  float: right;
+}
+
+h1 {
+	font-weight: 700;
+	margin-bottom: 0;
+}
+
+h3{
+	font-weight: 300;
+	margin-top: 1%;
+}
+.chart svg {
+	margin-top: 1%;
 }

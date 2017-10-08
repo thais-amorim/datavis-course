@@ -3,27 +3,31 @@
 <head>
     <meta charset="utf-8">
     <meta name="author" content="Thais Marinho">
-    <title>Tarefa 3</title>
+    <title>Tarefa 3 - Filmes</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" href="css/dc.css">
-    <link rel="stylesheet" href="css/styles.css">
     <script src="js/crossfilter.js" charset="utf-8"></script>
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="js/dc.js" charset="utf-8"></script>
 
 </head>
 <body>
-    <div id="grossByYearChart">
-      <h1>Bilheteria por ano</h1>
+    <div class="chart" id="grossByYearChart">
+        <h1>Bilheteria arrecadada</h1>
+        <h3>Em milhões de dólares americanos por ano</h3>
     </div>
-    <div id="grossByGenreChart">
-      <h1>Bilheteria por gênero</h1>
+    <div class="chart" id="grossByGenreChart">
+        <h1>Bilheteria arrecadada</h1>
+        <h3>Em milhões de dólares americanos por gênero de filme</h3>
     </div>
     <script type="text/javascript">
         let grossByYearChart    = dc.barChart('#grossByYearChart');
         let grossByGenreChart   = dc.barChart('#grossByGenreChart');
 
         let formatNumber    = d3.format(",.0d"),
-            formatMillion   = function(x) { return formatNumber(x / 1e6) + "M"; };
+            formatMillion   = function(x) { return "$" + formatNumber(x / 1e6) + "M"; };
 
         function formatAbbreviation(x) {
             let v = Math.abs(x);
@@ -31,7 +35,7 @@
         }
 
         function create(data, chart, color, dimensionFunction, groupFunction, groupLabel){
-            chart.width(800)
+            chart.width(600)
                 .height(400)
                 .dimension(dimensionFunction)
                 .x(d3.scale.ordinal())
@@ -41,9 +45,9 @@
                 .barPadding(0.4)
                 .group(groupFunction, groupLabel)  
                 .title(function(d) {
-                    return d.key + ": $" + formatAbbreviation(d.value);
+                    return d.key + ": " + formatAbbreviation(d.value);
                 })  
-                .yAxisLabel("", 20)
+                .yAxisLabel("", 25)
                 .yAxis().tickFormat(function(d){
                     return formatAbbreviation(d);
                 });
@@ -60,8 +64,8 @@
                 grossByYearGroup    = yearDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; }),
                 grossByGenreGroup   = genreDim.group().reduceSum(function(d){ return d.Worldwide_Gross_M; });
 
-            create(json, grossByYearChart, '#299F78', yearDim, grossByYearGroup, "Year");
-            create(json, grossByGenreChart, '#31659B', genreDim, grossByGenreGroup, "Genre");
+            create(json, grossByYearChart, '#31659B', yearDim, grossByYearGroup, "Year");
+            create(json, grossByGenreChart, '#299F78', genreDim, grossByGenreGroup, "Genre");
             dc.renderAll();
         });
     </script>           

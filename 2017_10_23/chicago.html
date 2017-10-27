@@ -31,11 +31,11 @@
             </div>
             <div class="chart" id="crimesByTypeChart">
         		<h1></h1>
-        		<h3>Em total de ocorrências por tipo de crime</h3>
+        		<h3></h3>
     		</div>
     		<div class="chart" id="crimesByDayChart">
         		<h1></h1>
-        		<h3>(de </h3>
+        		<h3></h3>
     		</div>
             <script type="text/javascript">   
             	let map = L.map('mapid').setView([41.865871, -87.628288], 10);
@@ -43,68 +43,71 @@
                 	attribution: '&copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors', //text copyright 
                 	maxZoom: 17})
                 	.addTo(map);
-
+					
 				let rowChart    = dc.rowChart('#crimesByTypeChart'),
 					seriesChart = dc.seriesChart('#crimesByDayChart');
-
+					
                 let primaryType = ["HOMICIDE","ROBBERY","BURGLARY"],
                 	colors 		= ["#EF793E", "#31659B", "#299F78"],
             		colorScale 	= d3.scale.ordinal()
                 					.domain(primaryType)
                 					.range(colors);
-
+									
+				function onCircleClick(e) {
+					alert("You clicked the map at " + e.latlng);
+				}
+			mymap.on('click', onCircleClick);
+									
             d3.csv("Crimes_Chicago_Sep2017.csv", function (data) {
-                let brazilianFormat = d3.time.format("%d/%m/%Y");
+                let dtgFormat = d3.time.format.utc("%m/%d/%Y %H:%M:%S");
+				
               	data.forEach(function(d){
                 	d.latitude      = +d.Latitude;
                 	d.longitude     = +d.Longitude;
                 	d.year      	= +d.Year;
-                	d.date 			= brazilianFormat.parse(d["Updated On"].split(" ")[0]);
+                	d.date 			= dtgFormat.parse(d.Date.substr(0,19));
+					d.type			= d["Primary Type"];
               	});
-
               	let facts = crossfilter(data);
-
-              	let typeDimension 		= facts.dimension(function (d) {return d["Primary Type"]}),
-              		timeDimension 		= facts.dimension(function (d) {return d.Date}),
-			  		typeSeriesDimension = facts.dimension(d => [d["Primary Type"],d.date]);
+				
+              	let typeDimension 		= facts.dimension(d => d.type),
+              		timeDimension 		= facts.dimension(d => d.Date),
+			  		typeByDayDimension 	= facts.dimension(d => [d.type,d3.time.day(d.date)]);
 			  
 			  	let typeGroup 		= typeDimension.group(),
-			  		typeSeriesGroup = typeSeriesDimension.group();
-
+			  		typeByDayGroup 	= typeByDayDimension.group();
+					
             	data.forEach(function(d){
                 	let circle = L.circle([d.latitude, d.longitude], 100, {
-                    	color: colorScale(d["Primary Type"]),
+                    	color: colorScale(d.type),
                     	weight: 2,
-                    	fillColor: colorScale(d["Primary Type"]),
+                    	fillColor: colorScale(d.type),
                     	fillOpacity: 0.5})
                     	.addTo(map);
-
-                	circle.bindPopup("Crime type: "+d["Primary Type"]);
+                	circle.bindPopup("Crime type: "+d.type);
             	});
-
+				
             	rowChart.width(600)
                     .height(400)
-                    .margins({top: 10, right: 10, bottom: 20, left: 40})
                     .dimension(typeDimension)
                     .group(typeGroup)
                     .colors(colorScale);
 	           	
 				seriesChart.width(600)
     				.height(400)
-    				.chart(function(c) { return dc.lineChart(c).interpolate('cardinal'); })
-    				.x(d3.time.scale().domain([timeDimension.bottom(1)[0].date,timeDimension.top(1)[0].date]))
-    				.dimension(typeSeriesDimension)
-    				.group(typeSeriesGroup)
+    				.chart(c => dc.lineChart(c).interpolate('cardinal'))
+    				.x(d3.time.scale().domain(d3.extent(data, d => d.date)))
+    				.dimension(typeByDayDimension)
+    				.group(typeByDayGroup)
     				.colors(colorScale)
     				.seriesAccessor(d => d.key[0])
     				.keyAccessor(d => d.key[1])
     				.valueAccessor(d => d.value)
     				.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5));
-
+					
 				dc.renderAll();
             });
             </script>
-
             <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
             <!-- Include all compiled plugins (below), or include individual files as needed -->

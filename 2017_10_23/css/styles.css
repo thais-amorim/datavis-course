@@ -1,22 +1,40 @@
 body {
-    font-family: "helvetica"
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    color: #3F3F3F;
 }
 
-h4 span {
-    font-size:14px;
-    font-weight:normal;
+div {
+	padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
 }
-  
-h2 {
-    float: right;
-  }
-  
-h2 span {
-    font-size:14px;
-    font-weight:normal;
+
+h1 {
+	font-weight: 700;
+	margin-bottom: 0;
+}
+
+h3{
+	font-weight: 300;
+	margin-top: 1%;
+}
+.chart svg {
+	margin-top: 1%;
+	margin-left: 1%;
+	margin-right: 1%;
+}
+
+div:nth-of-type(2) {
+  float: left;
+}
+
+div:nth-of-type(3) {
+  float: right;
 }
 
 #mapid {
-    width: 650px;
+    width: 650px auto;
     height: 450px;
+	margin-top: 1%;
 }

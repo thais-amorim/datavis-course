@@ -8,3 +8,28 @@ body {
 	padding: 40px 15px;
 	text-align: center;
 }
+
+.list-group-item.active, 
+.list-group-item.active:focus, 
+.list-group-item.active:hover{
+	text-shadow: 0 -1px 0 #0d674a;
+	background-image: linear-gradient(to bottom,#289D7D 0,#299F78 100%);
+	background-color: #289D7D;
+	border-color: #289D7D;
+
+}
+.list-group-item.active .list-group-item-text, 
+.list-group-item.active:focus .list-group-item-text, 
+.list-group-item.active:hover .list-group-item-text {
+    color: #D6F8EC;
+}
+
+.list-group-item.active>.badge, 
+.nav-pills>.active>a>.badge{
+    color: #289D7D;
+    background-color: #fff;
+}
+
+.badge {
+	margin-top:-30px;
+}

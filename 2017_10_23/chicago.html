@@ -2,16 +2,11 @@
     <html>
         <head>
             <title> Crimes in Chicago</title>
-            <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
             <!-- Optional theme -->
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
             <!-- Custom styles for this template -->
             <link rel="shortcut icon" type="image/x-icon" href="/datavis-course/favicon.ico"> 
 			<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700">				
-            <link rel="stylesheet" href="css/starter-template.css">
             <link rel="stylesheet" href="css/dc.css">
             <link rel="stylesheet" href="css/styles.css">
 
@@ -19,6 +14,7 @@
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
             <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="crossorigin=""></script>
 
+            <script src="https://use.fontawesome.com/6ffdb7e279.js"></script>
             <script src="js/crossfilter.js" charset="utf-8"></script>
             <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
             <script src="js/dc.js" charset="utf-8"></script>
@@ -26,44 +22,79 @@
             </style>
         </head>
         <body>
-            <div class='container-fluid'>
-                <h1> Crimes in Chicago </h1>
-				<h3> (from 09/01/2017 until 10/14/2017)</h3>
+        	<div class="">
+        		<a href="/datavis-course">
+        			<i class="fa fa-arrow-left" aria-hidden="true"></i>
+        			Back to Main Page</a>
+        	</div>
+            <div class="container-fluid">
+            	<div class="center">
+            		<h1> Crimes in Chicago </h1>
+					<h3> (from 09/01/2017 until 10/14/2017)</h3>
+            	</div>
                 <div id="mapid"></div>
             </div>
             <div class="chart" id="crimesByTypeChart">
-        		<h1></h1>
-        		<h3>Total of Crimes by Primary Type</h3>
+        		<h3 class="left">Total of Crimes by Primary Type</h3>
     		</div>
     		<div class="chart" id="crimesByDayChart">
-        		<h1></h1>
-        		<h3>Total of Crimes by Day</h3>
+        		<h3 class="left">Total of Crimes by Day</h3>
     		</div>
             <script type="text/javascript">   
             	let map = L.map('mapid').setView([41.865871, -87.628288], 10);
               	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { 
-                	attribution: '&copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors', //text copyright 
+                	attribution: '&copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors', 
                 	maxZoom: 17})
                 	.addTo(map);
 					
-				let rowChart    = dc.rowChart('#crimesByTypeChart'),
+				let barChart    = dc.barChart('#crimesByTypeChart'),
 					seriesChart = dc.seriesChart('#crimesByDayChart');
 					
-                let primaryType = ["HOMICIDE","ROBBERY","BURGLARY"],
+                let primaryType = ["Homicide","Robbery","Burglary"],
                 	colors 		= ["#EF793E", "#31659B", "#299F78"],
             		colorScale 	= d3.scale.ordinal()
                 					.domain(primaryType)
                 					.range(colors);
+
+                let legend = L.control({position: 'topright'});
+				legend.onAdd = function (map) {
+  					let div = L.DomUtil.create('div', 'info legend');
+
+    				for (i in primaryType) {
+    					let row 	= L.DomUtil.create('div','type'),
+							circle 	= L.DomUtil.create('div','circle'),
+							text 	= L.DomUtil.create('span');
+
+						circle.style.backgroundColor = colors[i];
+						text.textContent = primaryType[i];	
+						row.append(circle);
+						row.append(text);
+
+        				div.append(row);
+    				}
+    				return div;
+				}
+				legend.addTo(map);
+
+                function toTitleCase(str){
+                	return str.split(' ')
+   							.map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
+   							.join(' ');
+                }
 									
             d3.csv("Crimes_Chicago_Sep2017.csv", function (data) {
-                let dtgFormat = d3.time.format.utc("%m/%d/%Y %H:%M:%S");
+                let dtgFormat 		= d3.time.format.utc("%m/%d/%Y %H:%M:%S"),
+                	dateFormat		= d3.time.format("%m/%d/%Y"),
+                	timeFormat		= d3.time.format("%I:%M %p"),
+                	dayNameFormat	= d3.time.format("%A");
 				
               	data.forEach(function(d){
                 	d.latitude      = +d.Latitude;
                 	d.longitude     = +d.Longitude;
-                	d.year      	= +d.Year;
                 	d.date 			= dtgFormat.parse(d.Date.substr(0,19));
-					d.type			= d["Primary Type"];
+					d.type			= toTitleCase(d["Primary Type"]);
+					d.location      = toTitleCase(d["Location Description"]);
+					d.description   = toTitleCase(d.Description);
               	});
               	let facts = crossfilter(data);
 				
@@ -74,6 +105,10 @@
 			  	let typeGroup 		= typeDimension.group(),
 			  		typeByDayGroup 	= typeByDayDimension.group();
 					
+			  	let typesOrdered = typeGroup.top(Infinity).map(d => d.key);
+
+				let popupText;
+
             	data.forEach(function(d){
                 	let circle = L.circle([d.latitude, d.longitude], 100, {
                     	color: colorScale(d.type),
@@ -81,14 +116,32 @@
                     	fillColor: colorScale(d.type),
                     	fillOpacity: 0.5})
                     	.addTo(map);
-                	circle.bindPopup("Crime type: "+d.type);
+
+					popupText = "Crime Type: "+d.type+"<br>"
+								+"Date: "+dateFormat(d.date)+" ("+dayNameFormat(d.date)+")<br>"
+								+"Time: "+timeFormat(d.date)+"<br>"
+								+"Location: "+d.location+"<br>"
+								+d.description+"<br>";
+
+                	circle.bindPopup(popupText);
             	});
 				
-            	rowChart.width(600)
+            	barChart.width(600)
                     .height(400)
+                    .margins({top: 20, right: 50, bottom: 20, left: 40})
+                	.x(d3.scale.ordinal().domain(typesOrdered))
+                    .xUnits(dc.units.ordinal)
+                    .barPadding(0.4)
                     .dimension(typeDimension)
                     .group(typeGroup)
-                    .colors(colorScale);
+                    .on('renderlet', function(chart){
+                    	chart.selectAll('rect.bar')
+                    		.each(function(d){d3.select(this).attr("style","fill: "+colorScale(d.x));})
+                    	}
+                    )
+                    .title(function(d){
+                    	return d.key+": "+d.value+" reported incidents"
+                    });
 	           	
 				seriesChart.width(600)
     				.height(400)
@@ -97,19 +150,18 @@
     				.dimension(typeByDayDimension)
     				.group(typeByDayGroup)
     				.colors(colorScale)
+    				.brushOn(true)
     				.seriesAccessor(d => d.key[0])
     				.keyAccessor(d => d.key[1])
     				.valueAccessor(d => d.value)
-    				.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5));
+    				.title(function(d){
+                            return "Date: " + dateFormat(d.key) + "<br>"
+                                    + "Total of Crimes: " + d.value;
+                        })
+    				.legend(dc.legend().x(410).y(15).itemHeight(13).gap(5));
 					
 				dc.renderAll();
             });
             </script>
-            <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-            <!-- Include all compiled plugins (below), or include individual files as needed -->
-             <!-- Latest compiled and minified JavaScript -->
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-                
         </body>
 </html>

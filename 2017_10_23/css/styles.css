@@ -1,13 +1,7 @@
 body {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 400;
-    color: #3F3F3F;
-}
-
-div {
-	padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: #3F3F3F;
 }
 
 h1 {
@@ -19,22 +13,67 @@ h3{
 	font-weight: 300;
 	margin-top: 1%;
 }
+
+a{
+  color: #3F3F3F;
+}
 .chart svg {
 	margin-top: 1%;
-	margin-left: 1%;
-	margin-right: 1%;
+	margin-left: 5%;
+	margin-right: 5%;
 }
 
-div:nth-of-type(2) {
+.chart {
+  margin-bottom: 5%;
+}
+
+#crimesByTypeChart {
   float: left;
+  padding-left: 5%
 }
 
-div:nth-of-type(3) {
+#crimesByDayChart {
   float: right;
+  padding-right: 5%;
 }
 
 #mapid {
-    width: 650px auto;
-    height: 450px;
+  width: 650px auto;
+  height: 500px;
 	margin-top: 1%;
+}
+
+.leaflet-popup-content {
+  text-align: left;
+}
+
+.info {
+  background-color:rgba(242,242,242,0.8);
+  width: 150px;
+}
+
+.type{
+  width:80%;  
+  height: 18px; 
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-left: 10px;
+}
+
+.circle {
+  border-radius: 50%;
+  width:10px;  
+  height: 10px;
+  margin-top: 8px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+.center{
+  text-align: center;
+}
+.left{
+  padding-top: 3%;
+  padding-left: 10%;
+  padding-right: 10%;
 }

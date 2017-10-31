@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title> Similar Songs Network</title>
-    
+    <link rel="shortcut icon" type="image/x-icon" href="/datavis-course/favicon.ico">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700">
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -14,10 +15,16 @@
   </head>
   <body>
     <div id="container" class="container">
+	  <div class="back">
+        		<a href="/datavis-course">
+        			<i class="fa fa-arrow-left" aria-hidden="true"></i>
+        			Return to Home Page</a>
+	  </div>
       <header>
       <h1>Similar Song Network</h1>
       <p>Songs similar to one another according to <a href="http://www.last.fm/api">last.fm</a> are linked together. Song nodes are sized based on playcounts, and colored by artist.</p>
-      </header>
+	  <h3>Root node: Poker Face - Lady GaGa</h3>
+	  </header>
       <div id="main" role="main">
         <div id="vis"></div>
       </div>
@@ -30,6 +37,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <!-- Latest compiled and minified JavaScript -->
+	<script src="https://use.fontawesome.com/6ffdb7e279.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="js/Tooltip.js"></script>

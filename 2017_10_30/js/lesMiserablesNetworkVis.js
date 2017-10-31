@@ -29,23 +29,28 @@ function Network() {
 
   function setupData(data) {
     let circleRadius, countExtent;
-    // initialize circle radius scale
-    countExtent = d3.extent(data.nodes, function(d) {
-      return d.playcount;
+    data.nodes.forEach(function (d) {
+      d.count = 0;
+      data.links.forEach(function(l) {
+        if (l.source === d.id || l.target === d.id) d.count++;
+      });
     });
-    circleRadius = d3.scale.sqrt().range([3, 15]).domain(countExtent);
+
+    countExtent = d3.extent(data.nodes, d => d.count);
+
+    circleRadius = d3.scale.linear().range([3, 15]).domain(countExtent);
     //First let's randomly dispose data.nodes (x/y) within the the width/height
     // of the visualization and set a fixed radius for now
     data.nodes.forEach(n => {
       n.x = Math.floor(Math.random() * width);
       n.y = Math.floor(Math.random() * height);
  
-      n.radius = circleRadius(n.playcount);
+      n.radius = circleRadius(n.count);
     });
     // Then we will create a map with
     // id's -> node objects
     // using the mapNodes function above and store it in the nodesMap letiable.
-    var nodesMap = mapNodes(data.nodes);
+    let nodesMap = mapNodes(data.nodes);
     // Then we will switch links to point to node objects instead of id's
     data.links.forEach(function(l) {
       l.source = nodesMap.get(l.source);
@@ -57,29 +62,43 @@ function Network() {
 
   // Mouseover tooltip function
   function showDetails(d, i) {
-    
-  }
+	let content;
+	content = '<p class="main">' + d.id + '</span></p>';
+	content += '<hr class="tooltip-hr">';
+	content += '<p class="main">' + d.count + '</span></p>';
+	tooltip.showTooltip(content, d3.event);
+
+	// highlight the node being moused over
+	return d3.select(this).style("stroke", "black").style("stroke-width", 2.0);
+  };
 
   // Mouseout function
   function hideDetails(d, i) {
-    
-  }
+    tooltip.hideTooltip();
+    // watch out - don't mess with node if search is currently matching
+    node.style("stroke", function(n) {
+    return "#555";
+    }).style("stroke-width", function(n) {
+    return 1.0;
+    });
+  };
 
   // enter/exit display for nodes
   function updateNodes() {
     //select all node elements in svg group of nodes
     node = nodesG.selectAll("circle.node")
-      					.data(allData.nodes, d => d.id);
+      			.data(allData.nodes, d => d.id);
     // set cx, cy, r attributes and stroke-width style
     node.enter()
         .append("circle").attr("class","node")
         .attr("cx",d => d.x)
         .attr("cy",d => d.y)
         .attr("r",d => d.radius)
+		.attr("fill","#299F78")
         .style("stroke-width",1)
    
-    node.on("mouseover", function(d,i){showDetails(this,d,i);})
-     		.on("mouseout", hideDetails);
+    node.on("mouseover", showDetails)
+     	.on("mouseout", hideDetails);
   }
 
   // enter/exit display for links

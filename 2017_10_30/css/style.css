@@ -1,8 +1,25 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: #3F3F3F;
 }
 
-a, a:visited {
+h1 {
+	font-weight: 700;
+	margin-bottom: 0;
+}
+
+h3{
+	font-weight: 300;
+	margin-top: 1%;
+}
+
+a{
+  color: #3F3F3F;
+  text-decoration: underline;
+}
+
+a:visited {
   color: #4d4d4d;
   text-decoration: underline;
 }

@@ -62,18 +62,16 @@ function Network() {
 	tooltip.showTooltip(content, d3.event);
 
 	// highlight the node being moused over
-	return d3.select(this).style("stroke", "black").style("stroke-width", 2.0);
+	return d3.select(this).style("fill", "#3f3f3f").style("stroke", "black").style("stroke-width", 2.0);
   };
 
   // Mouseout function
   function hideDetails(d, i) {
     tooltip.hideTooltip();
     // watch out - don't mess with node if search is currently matching
-    node.style("stroke", function(n) {
-    return "#555";
-    }).style("stroke-width", function(n) {
-    return 1.0;
-    });
+    node.style("fill", "#000000")
+    		.style("stroke", "#555")
+    		.style("stroke-width", 1.0);
   };
 
   // enter/exit display for nodes

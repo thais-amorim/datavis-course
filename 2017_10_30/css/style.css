@@ -127,3 +127,8 @@ line.link {
   stroke-width: 1.5px;
 }
 
+circle:hover { 
+  fill: #357762; 
+  stroke: #555555;
+  stroke-width: 1.5;
+}

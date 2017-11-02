@@ -100,22 +100,22 @@ function Network() {
     link.enter()
         .append("line")
         .attr("class", "link")
-                   .attr("stroke", "#ddd").attr("stroke-opacity", 0.8)
-                   .attr("x1", d => d.source.x )
-                   .attr("y1", d => d.source.y )
-                   .attr("x2", d => d.target.x )
-                   .attr("y2", d => d.target.y );
+        .attr("stroke", "#ddd").attr("stroke-opacity", 0.8)
+        .attr("x1", d => d.source.x )
+        .attr("y1", d => d.source.y )
+        .attr("x2", d => d.target.x )
+        .attr("y2", d => d.target.y );
   }
 
   // tick function for force directed layout
   var forceTick = function(e) {
     node.attr("cx", d => d.x )
-    .attr("cy", d => d.y );
+    		.attr("cy", d => d.y );
 
     link.attr("x1", d => d.source.x )
-    .attr("y1", d => d.source.y )
-    .attr("x2", d => d.target.x )
-    .attr("y2", d => d.target.y );
+    		.attr("y1", d => d.source.y )
+    		.attr("x2", d => d.target.x )
+    		.attr("y2", d => d.target.y );
   };
 
   // Starting point for network visualization

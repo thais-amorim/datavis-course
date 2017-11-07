@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+  <title>Taxa de desemprego nos EUA em 2008</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/datavis-course/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700">
+
+  <script src="https://use.fontawesome.com/6ffdb7e279.js"></script>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<script src="https://d3js.org/queue.v1.min.js"></script>
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
+	<script src="https://d3js.org/colorbrewer.v1.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="container" class="container">
+    <div class="back">
+            <a href="/datavis-course">
+              <i class="fa fa-arrow-left" aria-hidden="true"></i>
+              Return to Home Page</a>
+    </div>
+    <header>
+	   <h1>Taxa de desemprego nos EUA em 2008</h1>
+   </header>
+   <div id="map"></div>
+  </div>
+  
+<script>
+
+let width = 960,
+    height = 600;
+
+let rateById = d3.map();
+
+let quantize = d3.scale.quantize()
+    .domain([0, .15])
+    .range(colorbrewer.Greens[9]);
+
+let projection = d3.geo.albersUsa()
+    .scale(1280)
+    .translate([width / 2, height / 2]);
+
+let path = d3.geo.path()
+    .projection(projection);
+
+let svg = d3.select("#map").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+queue()
+    .defer(d3.json, "data/us.json")
+    .defer(d3.tsv, "data/unemployment.tsv", function(d) { rateById.set(d.id, +d.rate); })
+    .await(ready);
+
+function ready(error, us) {
+  if (error) throw error;
+
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+      .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("fill", d => quantize(rateById.get(d.id)))
+      .attr("d", path);
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
+</script>
+</body>
+</html>

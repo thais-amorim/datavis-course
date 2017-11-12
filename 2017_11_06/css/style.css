@@ -3,39 +3,34 @@ body {
   font-weight: 400;
   color: #3F3F3F;
 }
-
 h1 {
 	font-weight: 700;
 	margin-bottom: 0;
 }
-
+h2 {
+  font-weight: 500;
+}
 h3{
 	font-weight: 300;
 	margin-top: 1%;
 }
-
 a{
   color: #3F3F3F;
   text-decoration: underline;
 }
-
 a:visited {
   color: #4d4d4d;
   text-decoration: underline;
 }
-
 .counties {
   fill: none;
 }
-
 .states {
   fill: none;
   stroke: #eee;
   stroke-linejoin: round;
 }
-
 #container {
-  width: 940px;
   padding: 5px 0 10px 0;
   width: 100%;
   padding-right: 15px;
@@ -43,19 +38,16 @@ a:visited {
   margin-right: auto;
   margin-left: auto;
 }
-
-line.link {
-  fill: none;
-  stroke-width: 1.5px;
-}
-
 #map {
   width: 750px;
   height: 590px;
+  margin-top: 1%;
+  margin-right: auto;
+  margin-left: auto;
 }
 .info {
   padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
+  font: 14px/16px 'Roboto', 'Roboto', sans-serif;
   background: white;
   background: rgba(255,255,255,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -65,7 +57,6 @@ line.link {
   margin: 0 0 5px;
   color: #777;
 }
-
 .legend {
   text-align: left;
   line-height: 18px;
@@ -77,4 +68,12 @@ line.link {
   float: left;
   margin-right: 8px;
   opacity: 0.7;
+}
+.center{
+  text-align: center;
+}
+.left{
+  padding-left: 5%;
+  padding-right: 10%;
+  text-align: left;
 }

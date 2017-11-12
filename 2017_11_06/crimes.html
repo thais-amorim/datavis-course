@@ -4,7 +4,7 @@
 	<title>Número de homicídios em Fortaleza em 2012</title>
 	<meta charset="UTF-8"> 
 	<link rel="shortcut icon" type="image/x-icon" href="/datavis-course/favicon.ico">
-  	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700">
+  	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
    integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
    crossorigin=""/>
@@ -21,28 +21,28 @@
 
 <div id="container" class="container">
 	<div class="back">
-            <a href="/datavis-course">
-              <i class="fa fa-arrow-left" aria-hidden="true"></i>
-              Return to Home Page</a>
+        <a href="/datavis-course">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            Return to Home Page
+        </a>
     </div>
-	<h1> Número de Homicídios em Fortaleza em 2012</h1>
-	<p>
-		Dados retirados do site da <a href="http://www.sspds.ce.gov.br/">SSPDS</a>.
-	</p>	
+    <div class="center">
+    	<h1> Taxa de Homicídios em Fortaleza (2012)</h1>
+    	<h3>Dados retirados do site da 
+			<a target="_blank" href="http://www.sspds.ce.gov.br/informacaoDetalhada.do?tipoPortal=1&codNoticia=1217&titulo=relat%F3rios_crimes%20contra%20a%20pessoa&action=detail">SSPDS</a>
+		</h3>
+    </div>	
     <div id="map">
 		<strong>Homicídios por Bairro</strong>
     </div>
 </div>
 <script type="text/javascript" src="data/bairros.js"></script>
 <script type="text/javascript">
-    let brewerColors = colorbrewer.Blues[5];
-	
 	let map = L.map('map').setView([-3.792614,-38.515877], 12);
 	L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
 	{ attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
 	maxZoom: 18}).addTo(map);
 	
-	// control that shows state info on hover
 	let info = L.control();
 
 	info.onAdd = function (map) {
@@ -52,33 +52,33 @@
 	};
 
 	info.update = function (feat) {
-            //console.log(feat);
-			this._div.innerHTML = '<h5>Número de homicídios</h5>' +  (feat ?
-				'<b>' + feat.properties.NOME + '</b><br />' + homicidiosByName.get(feat.properties.NOME) + ' homicídios'
+			this._div.innerHTML = '<h2>Taxa de homicídios</h2>' +  (feat ?
+				'<b>' + feat.properties.NOME + '</b><br />' + homicidiosByName.get(feat.properties.NOME) + ' homicídios por 100.000 habitantes'
 				: 'Passe o mouse sobre um bairro');
 	};
 
 	info.addTo(map);
 	
-	// get color depending on number of cases
-	let quantize = d3.scale.quantize()
-    .domain([0, 70])
+	let domain 			= [0,20,50,100,200,300],
+		brewerColors 	= colorbrewer.OrRd[6];
+
+	let quantize = d3.scale.quantile()
+    .domain(domain)
     .range(brewerColors);
 
 	function style(feature) {
+		let taxDensity = homicidiosByName.get(feature.properties.NOME);
 		 return {
 					weight: 1,
 					opacity: 1,
 					color: 'white',
 					dashArray: '3',
-					fillOpacity: 0.6,
+					fillOpacity: 0.8,
 					fillColor: quantize(homicidiosByName.get(feature.properties.NOME))
 				};
 	}
 	function highlightFeature(e) {
 		let layer = e.target;
-        //console.log(e.target)
-
 		layer.setStyle({
 					weight: 2,
 					color: '#AAA',
@@ -110,15 +110,25 @@
 					click: zoomToFeature
 				});
 	}
-    let homicidiosByName = d3.map();
+
+	let populationByName = d3.map();
+	let homicidiosByName = d3.map();
+
+	d3.csv("data/populacao_fortaleza.csv", function(data){
+		data.forEach(p => populationByName.set(p.bairro, +p.populacaoTotal) );
+	});
 
 	d3.csv("data/homicidios_2012.csv", function(data){
-        //format data
         data.forEach(function(d) {
-            homicidiosByName.set(d.Bairro,+d.Homicidios);
-        });
-		
-		//bairrosData is defined in file bairros.js		 		
+        	let pop = populationByName.get(d.Bairro),
+   				tax = 100000*d.Homicidios/pop;
+
+       		tax = Math.round(tax).toFixed(2);
+            homicidiosByName.set(d.Bairro,tax);
+	    });
+
+	    let domain = d3.extent(data, d => homicidiosByName.get(d.Bairro) );
+	 		
 		geojson = L.geoJson(bairrosData, {
 				style: style,
 				onEachFeature: onEachFeature
@@ -137,7 +147,7 @@
 
 		for (let i = 0; i < n; i++) {
 			let c = brewerColors[i];
-            let fromto = quantize.invertExtent(c);
+            let fromto = [domain[i],domain[i+1]];
 			labels.push(
 				'<i style="background:' + brewerColors[i] + '"></i> ' +
 				d3.round(fromto[0]) + (d3.round(fromto[1]) ? '&ndash;' + d3.round(fromto[1]) : '+'));

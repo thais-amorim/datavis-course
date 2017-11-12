@@ -38,7 +38,7 @@ a:visited {
   margin-right: auto;
   margin-left: auto;
 }
-#map {
+#fortalezaMap {
   width: 750px;
   height: 590px;
   margin-top: 1%;
@@ -76,4 +76,7 @@ a:visited {
   padding-left: 5%;
   padding-right: 10%;
   text-align: left;
+}
+.in-line{
+  display: inline-block;
 }

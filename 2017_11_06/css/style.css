@@ -45,6 +45,11 @@ a:visited {
   margin-right: auto;
   margin-left: auto;
 }
+#map {
+  margin-top: 1%;
+  margin-right: auto;
+  margin-left: auto;
+}
 .info {
   padding: 6px 8px;
   font: 14px/16px 'Roboto', 'Roboto', sans-serif;

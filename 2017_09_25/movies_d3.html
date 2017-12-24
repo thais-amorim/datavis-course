@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Tarefa 2</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/datavis-course/favicon.ico">
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
@@ -33,14 +34,14 @@
         d3.select(chartId)
         .selectAll("div.h-bar")
         .sort(comparator);
-      }   
+      }
       d3.select(chartId)
         .selectAll("div.h-bar")
         .style("width", measureFunction)
         .select("span")
         .text(function(data){
           return nameFunction(data) + " - $"+ String( valueFunction(data) ) + "M";
-        }); 
+        });
     }
     let getMovieName = function(data) {
       return data.Film;
@@ -108,7 +109,7 @@
             }
             return dataByGenre;
     }
-    
+
     d3.json("movies.json", function(error, json){
       let genres = getGenres(json);
       render(json, "grossChart", "jungle-green", getMovieName, getGross, grossMeasure, grossCompare);
